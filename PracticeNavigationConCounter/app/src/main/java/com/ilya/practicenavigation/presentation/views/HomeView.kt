@@ -1,6 +1,6 @@
 package com.ilya.practicenavigation.presentation.views
 
-
+import androidx.compose.material3.Button
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -49,17 +49,6 @@ fun HomeView(navController: NavController){
 
 @Composable
 fun Content(paddingValues: PaddingValues, students: List<Student>, navController: NavController){
-    Column(
-        modifier = Modifier
-            .padding(paddingValues)
-            .padding(horizontal = 10.dp)
-            .fillMaxWidth(),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Counter()
-        Spacer(modifier = Modifier.height(20.dp))
-
-    }
     LazyColumn (
         modifier = Modifier
             .padding(paddingValues)
@@ -71,7 +60,7 @@ fun Content(paddingValues: PaddingValues, students: List<Student>, navController
                     .clickable {
                         navController.navigate("Details/${student.id}/${student.name}/${student.description}")
                     }
-                    .size(width = 30.dp, height = 20.dp)
+                    .size(150.dp)
                     .background(color = Color.Yellow, CircleShape)
                     .wrapContentSize(Alignment.Center)
             ){
