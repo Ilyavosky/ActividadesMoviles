@@ -1,7 +1,9 @@
 package com.ilya.students_unidad3.viewmodel
 
-import androidx.lifecycle.ViewModel
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.ilya.students_unidad3.data.StoreStudents
 import com.ilya.students_unidad3.data.Students
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -16,60 +18,64 @@ data class StudentUiState(
     val top3ByGroup: Map<String, List<Students>> = emptyMap()
 )
 
-class StudentViewModel : ViewModel() {
+class StudentViewModel(application: Application) : AndroidViewModel(application) {
 
+    private val storeStudents = StoreStudents(application)
     private val _uiState = MutableStateFlow(StudentUiState())
     val uiState: StateFlow<StudentUiState> = _uiState.asStateFlow()
 
     init {
-        loadInitialData()
+        viewModelScope.launch {
+            storeStudents.getStudents.collect { storedList ->
+                if (storedList.isEmpty() && _uiState.value.students.isEmpty()) {
+                    loadInitialSampleData()
+                } else {
+                    _uiState.update { it.copy(students = storedList) }
+                    calculateAllStatistics()
+                }
+            }
+        }
     }
 
-    private fun loadInitialData() {
+    private fun loadInitialSampleData() {
+        val sampleStudents = listOf(
+            Students(1, "Ilya", "Cortés", 5, "A", 150),
+            Students(2, "Aurora", "Muñoz", 6, "B", 100),
+            Students(3, "Yion", "Jaime", 5, "A", 78),
+            Students(4, "Málaga", "Fernandez", 6, "B", 88),
+            Students(5, "Toñito", "Calvo", 5, "A", 95),
+            Students(6, "Moi", "Sanchez", 5, "A", 81),
+            Students(7, "Rafa", "Ruiz^2", 6, "B", 76)
+        )
         viewModelScope.launch {
-            val sampleStudents = listOf(
-                Students(1, "Ilya", "Cortés", 5, "A", 150),
-                Students(2, "Aurora", "Muñoz", 6, "B", 100),
-                Students(3, "Yion", "Jaime", 5, "A", 78),
-                Students(4, "Málaga", "Fernandez", 6, "B", 88),
-                Students(5, "Toñito", "Calvo", 5, "A", 95),
-                Students(6, "Moi", "Sanchez", 5, "A", 81),
-                Students(7, "Rafa", "Ruiz^2", 6, "B", 76)
-            )
-            _uiState.value = _uiState.value.copy(students = sampleStudents)
-            calculateAllStatistics()
+            storeStudents.saveStudents(sampleStudents)
         }
     }
 
     fun addStudent(student: Students) {
         viewModelScope.launch {
-            _uiState.update { currentState ->
-                val updatedList = currentState.students + student
-                currentState.copy(students = updatedList)
-            }
-            calculateAllStatistics()
+            val currentList = _uiState.value.students
+            val newId = (currentList.maxOfOrNull { it.id } ?: 0) + 1
+            val studentWithCorrectId = student.copy(id = newId)
+
+            val updatedList = currentList + studentWithCorrectId
+            storeStudents.saveStudents(updatedList)
         }
     }
 
     fun deleteStudent(studentId: Int) {
         viewModelScope.launch {
-            _uiState.update { currentState ->
-                val updatedList = currentState.students.filter { it.id != studentId }
-                currentState.copy(students = updatedList)
-            }
-            calculateAllStatistics()
+            val updatedList = _uiState.value.students.filter { it.id != studentId }
+            storeStudents.saveStudents(updatedList)
         }
     }
 
     fun updateStudent(updatedStudent: Students) {
         viewModelScope.launch {
-            _uiState.update { currentState ->
-                val updatedList = currentState.students.map {
-                    if (it.id == updatedStudent.id) updatedStudent else it
-                }
-                currentState.copy(students = updatedList)
+            val updatedList = _uiState.value.students.map {
+                if (it.id == updatedStudent.id) updatedStudent else it
             }
-            calculateAllStatistics()
+            storeStudents.saveStudents(updatedList)
         }
     }
 
