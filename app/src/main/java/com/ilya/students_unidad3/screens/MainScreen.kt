@@ -1,7 +1,10 @@
 package com.ilya.students_unidad3.screens
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
 import com.ilya.students_unidad3.components.StudentBottomBar
@@ -17,10 +20,12 @@ fun MainScreen(themeViewModel: ThemeViewModel) {
     Scaffold(
         bottomBar = { StudentBottomBar(navController = navController) }
     ) { innerPadding ->
-        NavManager(
-            navController = navController,
-            studentViewModel = studentViewModel,
-            themeViewModel = themeViewModel
-        )
+        Box(modifier = Modifier.padding(innerPadding)) {
+            NavManager(
+                navController = navController,
+                studentViewModel = studentViewModel,
+                themeViewModel = themeViewModel
+            )
+        }
     }
 }
