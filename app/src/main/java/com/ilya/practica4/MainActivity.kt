@@ -25,8 +25,6 @@ class MainActivity : ComponentActivity() {
                         modifier = Modifier.padding(innerPadding)
                     )
                 }
-                s
-                s
             }
         }
     }
