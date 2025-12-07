@@ -1,5 +1,4 @@
 package com.ilya.examenpractico4aunidad.state
-
 import com.ilya.examenpractico4aunidad.models.PokemonStat
 
 data class PokemonState(
