@@ -33,23 +33,23 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.ilya.examenpractico4aunidad.utils.Constants
-import com.ilya.examenpractico4aunidad.viewmodels.CharactersViewModel
+import com.ilya.examenpractico4aunidad.viewmodels.PokemonViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SearchCharacterView(viewModel: CharactersViewModel, navController: NavController) {
+fun SearchPokemonView(viewModel: PokemonViewModel, navController: NavController) {
     val keyboardController = LocalSoftwareKeyboardController.current
     var query by remember { mutableStateOf("") }
     var active by remember { mutableStateOf(true) }
-    val charactersSearched by viewModel.charactersSearched.collectAsState()
+    val pokemonSearched by viewModel.pokemonSearched.collectAsState()
 
     LaunchedEffect(Unit) {
-        viewModel.searchCharacters("")
+        viewModel.searchPokemon("")
     }
 
     DisposableEffect(Unit) {
         onDispose {
-            viewModel.cleanCharactersSearched()
+            viewModel.cleanPokemonSearched()
         }
     }
 
@@ -61,7 +61,7 @@ fun SearchCharacterView(viewModel: CharactersViewModel, navController: NavContro
             query = query,
             onQueryChange = {
                 query = it
-                viewModel.searchCharacters(query)
+                viewModel.searchPokemon(query)
             },
             onSearch = {
                 keyboardController?.hide()
@@ -73,7 +73,7 @@ fun SearchCharacterView(viewModel: CharactersViewModel, navController: NavContro
                     navController.popBackStack()
                 }
             },
-            placeholder = { Text("Search characters...") },
+            placeholder = { Text("Search Pokémon...") },
             leadingIcon = {
                 Icon(Icons.Default.Search, "Search...")
             },
@@ -93,38 +93,36 @@ fun SearchCharacterView(viewModel: CharactersViewModel, navController: NavContro
                     .background(MaterialTheme.colorScheme.surface)
                     .padding(vertical = 10.dp)
             ) {
-                if (charactersSearched.isEmpty() && query.isNotEmpty()) {
+                if (pokemonSearched.isEmpty() && query.isNotEmpty()) {
                     item {
                         Text(
-                            "No characters found",
+                            "No Pokémon found",
                             fontSize = 16.sp,
                             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
                             modifier = Modifier.padding(start = 10.dp)
                         )
                     }
                 } else {
-                    items(charactersSearched) { character ->
+                    items(pokemonSearched) { pokemon ->
                         Column(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .clickable {
-                                    navController.navigate("${Constants.DETAILS_VIEW}/${character.id}")
+                                    navController.navigate("${Constants.DETAILS_VIEW}/${pokemon.id}")
                                 }
                                 .padding(horizontal = 10.dp, vertical = 8.dp)
                         ) {
                             Text(
-                                character.name,
+                                pokemon.name,
                                 fontSize = 18.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = MaterialTheme.colorScheme.onSurface
                             )
-                            if (!character.japaneseName.isNullOrEmpty()) {
-                                Text(
-                                    character.japaneseName,
-                                    fontSize = 14.sp,
-                                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
-                                )
-                            }
+                            Text(
+                                pokemon.types.joinToString(", "),
+                                fontSize = 14.sp,
+                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                            )
                         }
                     }
                 }

@@ -5,19 +5,22 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
+import androidx.compose.foundation.isSystemInDarkTheme
 import com.ilya.examenpractico4aunidad.navigation.NavManager
 import com.ilya.examenpractico4aunidad.ui.theme.ExamenPractico4aUnidadTheme
-import com.ilya.examenpractico4aunidad.viewmodels.CharactersViewModel
+import com.ilya.examenpractico4aunidad.viewmodels.PokemonViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val viewModel: CharactersViewModel by viewModels()
+        val viewModel: PokemonViewModel by viewModels()
         enableEdgeToEdge()
         setContent {
-            ExamenPractico4aUnidadTheme {
+            ExamenPractico4aUnidadTheme(
+                darkTheme = true
+            ) {
                 NavManager(viewModel)
             }
         }
