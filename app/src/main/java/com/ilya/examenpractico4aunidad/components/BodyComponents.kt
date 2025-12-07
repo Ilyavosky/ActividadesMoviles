@@ -1,6 +1,5 @@
 package com.ilya.examenpractico4aunidad.components
 
-import android.content.Intent
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
@@ -41,46 +40,80 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.net.toUri
 import coil.compose.AsyncImage
-import coil.compose.rememberAsyncImagePainter
-import com.ilya.examenpractico4aunidad.models.Character
+import com.ilya.examenpractico4aunidad.models.Pokemon
 
 @Composable
-fun CardCharacter(
-    character: Character,
+fun CardPokemon(
+    pokemon: Pokemon,
     onClick: () -> Unit
 ) {
     Card(
-        shape = RoundedCornerShape(8.dp),
+        shape = RoundedCornerShape(12.dp),
         modifier = Modifier
             .padding(horizontal = 10.dp, vertical = 8.dp)
             .clickable { onClick() },
-        elevation = CardDefaults.cardElevation(4.dp)
+        elevation = CardDefaults.cardElevation(6.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant
+        )
     ) {
         Column {
-            CharacterImage(imageUrl = character.image)
-            Text(
-                character.name,
-                fontWeight = FontWeight.Bold,
-                fontSize = 16.sp,
-                color = MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier.padding(8.dp),
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(200.dp)
+                    .background(
+                        brush = Brush.verticalGradient(
+                            colors = listOf(
+                                Color(0xFF45348e),
+                                Color(0xFF2d2541)
+                            )
+                        )
+                    ),
+                contentAlignment = Alignment.Center
+            ) {
+                AsyncImage(
+                    model = pokemon.image,
+                    contentDescription = pokemon.name,
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.Fit
+                )
+            }
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(MaterialTheme.colorScheme.surface)
+                    .padding(12.dp)
+            ) {
+                Text(
+                    pokemon.name,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 16.sp,
+                    color = Color.White,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+                if (pokemon.isMega) {
+                    Text(
+                        "MEGA",
+                        fontSize = 12.sp,
+                        color = Color(0xFFe5da7f),
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            }
         }
     }
 }
 
 @Composable
-fun CardFavoriteCharacter(
-    character: Character,
+fun CardFavoritePokemon(
+    pokemon: Pokemon,
     onDeleteClick: () -> Unit
 ) {
     Card(
@@ -102,8 +135,8 @@ fun CardFavoriteCharacter(
                 modifier = Modifier.weight(1f)
             ) {
                 AsyncImage(
-                    model = character.image,
-                    contentDescription = character.name,
+                    model = pokemon.image,
+                    contentDescription = pokemon.name,
                     modifier = Modifier
                         .size(60.dp)
                         .clip(RoundedCornerShape(8.dp)),
@@ -113,22 +146,20 @@ fun CardFavoriteCharacter(
                     modifier = Modifier.padding(start = 12.dp)
                 ) {
                     Text(
-                        character.name,
+                        pokemon.name,
                         fontWeight = FontWeight.Bold,
                         fontSize = 16.sp,
                         color = MaterialTheme.colorScheme.onSurface,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
-                    if (!character.japaneseName.isNullOrEmpty()) {
-                        Text(
-                            character.japaneseName,
-                            fontSize = 14.sp,
-                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                    }
+                    Text(
+                        "Types: ${pokemon.types.joinToString(", ")}",
+                        fontSize = 14.sp,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
                 }
             }
             IconButton(onClick = onDeleteClick) {
@@ -143,7 +174,7 @@ fun CardFavoriteCharacter(
 }
 
 @Composable
-fun CharacterImage(imageUrl: String) {
+fun PokemonImage(imageUrl: String) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -153,7 +184,7 @@ fun CharacterImage(imageUrl: String) {
         AsyncImage(
             model = imageUrl,
             contentDescription = null,
-            contentScale = ContentScale.Crop,
+            contentScale = ContentScale.Fit,
             modifier = Modifier.fillMaxSize()
         )
     }
@@ -169,21 +200,21 @@ fun FavoriteButton(
         modifier = Modifier
             .size(56.dp)
             .background(
-                color = MaterialTheme.colorScheme.primaryContainer,
+                color = if (isFavorite) Color(0xFFe5da7f) else Color(0xFF6046d8),
                 shape = CircleShape
             )
     ) {
         Icon(
             imageVector = if (isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
             contentDescription = if (isFavorite) "Remove from favorites" else "Add to favorites",
-            tint = if (isFavorite) Color.Red else MaterialTheme.colorScheme.onPrimaryContainer,
+            tint = if (isFavorite) Color(0xFF45348e) else Color.White,
             modifier = Modifier.size(28.dp)
         )
     }
 }
 
 @Composable
-fun CharacterInfoRow(label: String, value: String) {
+fun PokemonInfoRow(label: String, value: String) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -209,16 +240,16 @@ fun CharacterInfoRow(label: String, value: String) {
 @Composable
 fun Loader() {
     val circleColors: List<Color> = listOf(
-        Color(0xFF5851D8),
-        Color(0xFF833AB4),
-        Color(0xFFC13584),
-        Color(0xFFE1306C),
-        Color(0xFFFD1D1D),
-        Color(0xFFF56040),
-        Color(0xFFF77737),
-        Color(0xFFFCAF45),
-        Color(0xFFFFDC80),
-        Color(0xFF5851D8),
+        Color(0xFF45348e),
+        Color(0xFF6046d8),
+        Color(0xFF8B7BC8),
+        Color(0xFFe5da7f),
+        Color(0xFFc4b866),
+        Color(0xFF6046d8),
+        Color(0xFF45348e),
+        Color(0xFF8B7BC8),
+        Color(0xFFe5da7f),
+        Color(0xFF45348e),
     )
 
     val infiniteTransition = rememberInfiniteTransition("")
