@@ -2,9 +2,10 @@ package com.ilya.examenpractico4aunidad.di
 
 import android.content.Context
 import androidx.room.Room
-import com.ilya.examenpractico4aunidad.data.ApiJikan
+import com.ilya.examenpractico4aunidad.data.ApiPokemon
 import com.ilya.examenpractico4aunidad.database.AppDatabase
-import com.ilya.examenpractico4aunidad.database.CharacterDao
+import com.ilya.examenpractico4aunidad.database.PokemonDao
+import com.ilya.examenpractico4aunidad.utils.Constants.Companion.BASE_URL
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -22,15 +23,15 @@ object AppModule {
     @Provides
     fun providesRetrofit(): Retrofit {
         return Retrofit.Builder()
-            .baseUrl("https://api.jikan.moe/v4/")
+            .baseUrl(BASE_URL)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
     }
 
     @Singleton
     @Provides
-    fun providesApiJikan(retrofit: Retrofit): ApiJikan {
-        return retrofit.create(ApiJikan::class.java)
+    fun providesApiPokemon(retrofit: Retrofit): ApiPokemon {
+        return retrofit.create(ApiPokemon::class.java)
     }
 
     @Singleton
@@ -39,13 +40,13 @@ object AppModule {
         return Room.databaseBuilder(
             context,
             AppDatabase::class.java,
-            "characters_database"
+            "pokemon_database"
         ).fallbackToDestructiveMigration().build()
     }
 
     @Singleton
     @Provides
-    fun providesCharacterDao(database: AppDatabase): CharacterDao {
-        return database.characterDao()
+    fun providesPokemonDao(database: AppDatabase): PokemonDao {
+        return database.pokemonDao()
     }
 }
