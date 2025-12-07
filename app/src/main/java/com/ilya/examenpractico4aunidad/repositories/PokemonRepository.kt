@@ -73,35 +73,52 @@ class PokemonRepository @Inject constructor(
     suspend fun searchPokemon(query: String): List<Pokemon> {
         return try {
             if (query.isBlank()) {
-                val response = apiPokemon.getAllPokemon(limit = 50, offset = 0)
-                if (response.isSuccessful) {
-                    val pokemonList = response.body()?.results ?: emptyList()
-                    pokemonList.mapNotNull { basicPokemon ->
-                        val detailResponse = apiPokemon.getPokemonByName(basicPokemon.name)
-                        detailResponse.body()?.toPokemon()
-                    }
-                } else {
-                    emptyList()
-                }
+                emptyList()
             } else {
-                val response = apiPokemon.getPokemonByName(query.lowercase())
-                if (response.isSuccessful) {
-                    listOfNotNull(response.body()?.toPokemon())
-                } else {
-                    val allResponse = apiPokemon.getAllPokemon(limit = 1000, offset = 0)
-                    if (allResponse.isSuccessful) {
-                        val filtered = allResponse.body()?.results?.filter {
-                            it.name.contains(query, ignoreCase = true)
-                        } ?: emptyList()
+                val searchResults = mutableListOf<Pokemon>()
 
-                        filtered.take(20).mapNotNull { basicPokemon ->
-                            val detailResponse = apiPokemon.getPokemonByName(basicPokemon.name)
-                            detailResponse.body()?.toPokemon()
+                val directResponse = apiPokemon.getPokemonByName(query.lowercase().trim())
+                if (directResponse.isSuccessful) {
+                    directResponse.body()?.let { pokemon ->
+                        searchResults.add(pokemon.toPokemon())
+
+                        val speciesResponse = apiPokemon.getPokemonSpecies(pokemon.id.toString())
+                        if (speciesResponse.isSuccessful) {
+                            speciesResponse.body()?.varieties?.forEach { variety ->
+                                if (!variety.isDefault) {
+                                    val varietyName = variety.pokemon.name
+                                    if (varietyName.contains("mega")) {
+                                        val megaResponse = apiPokemon.getPokemonByName(varietyName)
+                                        if (megaResponse.isSuccessful) {
+                                            megaResponse.body()?.let { mega ->
+                                                searchResults.add(mega.toPokemon())
+                                            }
+                                        }
+                                    }
+                                }
+                            }
                         }
-                    } else {
-                        emptyList()
+                    }
+                    return searchResults
+                }
+
+                val allResponse = apiPokemon.getAllPokemon(limit = 1500, offset = 0)
+                if (allResponse.isSuccessful) {
+                    val filtered = allResponse.body()?.results?.filter {
+                        it.name.contains(query.lowercase().trim(), ignoreCase = true)
+                    }?.take(20) ?: emptyList()
+
+                    filtered.forEach { basicPokemon ->
+                        val detailResponse = apiPokemon.getPokemonByName(basicPokemon.name)
+                        if (detailResponse.isSuccessful) {
+                            detailResponse.body()?.let { detail ->
+                                searchResults.add(detail.toPokemon())
+                            }
+                        }
                     }
                 }
+
+                searchResults
             }
         } catch (e: Exception) {
             e.printStackTrace()

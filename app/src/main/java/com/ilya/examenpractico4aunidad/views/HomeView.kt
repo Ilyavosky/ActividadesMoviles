@@ -8,10 +8,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Groups
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -24,9 +27,9 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
-import com.ilya.examenpractico4aunidad.components.CardPokemon
 import com.ilya.examenpractico4aunidad.components.CenterAppBar
 import com.ilya.examenpractico4aunidad.components.Loader
+import com.ilya.examenpractico4aunidad.components.PokeballCard
 import com.ilya.examenpractico4aunidad.utils.Constants
 import com.ilya.examenpractico4aunidad.viewmodels.PokemonViewModel
 
@@ -98,13 +101,17 @@ fun ContentHomeView(
             }
         }
         is LoadState.NotLoading -> {
-            LazyColumn(
-                modifier = Modifier.padding(paddingValues)
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(2),
+                modifier = Modifier.padding(paddingValues),
+                contentPadding = PaddingValues(8.dp),
+                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
                 items(pokemonPage.itemCount) { index ->
                     val item = pokemonPage[index]
                     if (item != null) {
-                        CardPokemon(item) {
+                        PokeballCard(item) {
                             navController.navigate("${Constants.DETAILS_VIEW}/${item.id}")
                         }
                     }
