@@ -1,7 +1,7 @@
 package com.ilya.examenpractico4aunidad.repositories
 
 import com.ilya.examenpractico4aunidad.data.ApiJikan
-import com.ilya.examenpractico4aunidad.data.CharacterDao
+import com.ilya.examenpractico4aunidad.database.CharacterDao
 import com.ilya.examenpractico4aunidad.models.Character
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
@@ -29,8 +29,7 @@ class CharactersRepository @Inject constructor(
         return try {
             val response = apiJikan.getCharacterById(id)
             if (response.isSuccessful) {
-                val jikanData = response.body()?.data
-                jikanData
+                response.body()?.data
             } else {
                 null
             }
@@ -58,12 +57,16 @@ class CharactersRepository @Inject constructor(
         return characterDao.getAllFavorites()
     }
 
-    suspend fun insertFavorite(character: Character) {
+    suspend fun addFavorite(character: Character) {
         characterDao.insertFavorite(character)
     }
 
-    suspend fun deleteFavorite(character: Character) {
+    suspend fun removeFavorite(character: Character) {
         characterDao.deleteFavorite(character)
+    }
+
+    suspend fun removeFavoriteById(characterId: String) {
+        characterDao.deleteFavoriteById(characterId)
     }
 
     suspend fun isFavorite(id: String): Boolean {

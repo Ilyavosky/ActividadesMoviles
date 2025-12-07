@@ -118,9 +118,9 @@ fun SearchCharacterView(viewModel: CharactersViewModel, navController: NavContro
                                 fontWeight = FontWeight.Bold,
                                 color = MaterialTheme.colorScheme.onSurface
                             )
-                            character.chapter?.let {
+                            if (!character.japaneseName.isNullOrEmpty()) {
                                 Text(
-                                    it,
+                                    character.japaneseName,
                                     fontSize = 14.sp,
                                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
                                 )

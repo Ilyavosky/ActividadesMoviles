@@ -3,8 +3,8 @@ package com.ilya.examenpractico4aunidad.di
 import android.content.Context
 import androidx.room.Room
 import com.ilya.examenpractico4aunidad.data.ApiJikan
-import com.ilya.examenpractico4aunidad.data.AppDatabase
-import com.ilya.examenpractico4aunidad.data.CharacterDao
+import com.ilya.examenpractico4aunidad.database.AppDatabase
+import com.ilya.examenpractico4aunidad.database.CharacterDao
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

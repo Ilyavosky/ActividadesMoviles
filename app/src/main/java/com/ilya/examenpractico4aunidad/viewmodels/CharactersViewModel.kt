@@ -37,6 +37,9 @@ class CharactersViewModel @Inject constructor(
     private val _isCharacterLoading = MutableStateFlow(false)
     val isCharacterLoading: StateFlow<Boolean> = _isCharacterLoading
 
+    private val _isCurrentCharacterFavorite = MutableStateFlow(false)
+    val isCurrentCharacterFavorite: StateFlow<Boolean> = _isCurrentCharacterFavorite
+
     private val _favorites = MutableStateFlow<List<Character>>(emptyList())
     val favorites: StateFlow<List<Character>> = _favorites
 
@@ -60,7 +63,7 @@ class CharactersViewModel @Inject constructor(
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
                 _isCharactersLoading.value = true
-                _charactersSearched.value = repository.searchCharacters(name) ?: emptyList()
+                _charactersSearched.value = repository.searchCharacters(name)
                 _isCharactersLoading.value = false
             }
         }
@@ -75,22 +78,25 @@ class CharactersViewModel @Inject constructor(
             withContext(Dispatchers.IO) {
                 _isCharacterLoading.value = true
                 val result = repository.getCharacterById(id)
-                val isFav = repository.isFavorite(id)
 
                 state = state.copy(
                     id = result?.id ?: "",
                     name = result?.name ?: "",
                     japaneseName = result?.japaneseName ?: "",
                     image = result?.image ?: "",
-                    abilities = result?.abilities ?: "Unknown",
-                    nationality = result?.nationality ?: "Unknown",
-                    catchphrase = result?.catchphrase ?: "",
-                    chapter = result?.chapter ?: "Unknown",
-                    isLiving = result?.isLiving ?: false,
-                    isHuman = result?.isHuman ?: false,
-                    isFavorite = isFav
+                    about = result?.about ?: "",
+                    favorites = result?.favorites ?: 0,
+                    url = result?.url ?: ""
                 )
                 _isCharacterLoading.value = false
+            }
+        }
+    }
+
+    fun checkIfFavorite(id: String) {
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                _isCurrentCharacterFavorite.value = repository.isFavorite(id)
             }
         }
     }
@@ -103,20 +109,17 @@ class CharactersViewModel @Inject constructor(
                     name = state.name,
                     japaneseName = state.japaneseName,
                     image = state.image,
-                    abilities = state.abilities,
-                    nationality = state.nationality,
-                    catchphrase = state.catchphrase,
-                    chapter = state.chapter,
-                    isLiving = state.isLiving,
-                    isHuman = state.isHuman
+                    about = state.about,
+                    favorites = state.favorites,
+                    url = state.url
                 )
 
-                if (state.isFavorite) {
+                if (_isCurrentCharacterFavorite.value) {
                     repository.removeFavorite(character)
-                    state = state.copy(isFavorite = false)
+                    _isCurrentCharacterFavorite.value = false
                 } else {
                     repository.addFavorite(character)
-                    state = state.copy(isFavorite = true)
+                    _isCurrentCharacterFavorite.value = true
                 }
             }
         }

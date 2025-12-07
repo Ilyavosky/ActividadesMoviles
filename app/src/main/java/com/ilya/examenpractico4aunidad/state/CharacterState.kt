@@ -5,11 +5,7 @@ data class CharacterState(
     val name: String = "",
     val japaneseName: String = "",
     val image: String = "",
-    val abilities: String = "",
-    val nationality: String = "",
-    val catchphrase: String = "",
-    val chapter: String = "",
-    val isLiving: Boolean = true,
-    val isHuman: Boolean = true,
-    val isFavorite: Boolean = false
+    val about: String = "",
+    val favorites: Int = 0,
+    val url: String = ""
 )
