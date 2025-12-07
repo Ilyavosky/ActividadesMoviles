@@ -2,13 +2,13 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    id("com.google.devtools.ksp") version "2.0.21-1.0.27"
+    id("com.google.dagger.hilt.android") version "2.51.1"
 }
 
 android {
     namespace = "com.ilya.examenpractico4aunidad"
-    compileSdk {
-        version = release(36)
-    }
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.ilya.examenpractico4aunidad"
@@ -57,4 +57,22 @@ dependencies {
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
+
+    implementation(libs.androidx.material.icons.extended)
+
+    implementation(libs.hilt.android)
+    ksp(libs.hilt.android.compiler)
+
+    implementation(libs.androidx.navigation.compose)
+
+    implementation(libs.converter.gson)
+
+    implementation(libs.coil.compose)
+
+    implementation(libs.androidx.paging.runtime)
+    implementation(libs.androidx.paging.compose)
+
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.ktx)
+    ksp(libs.androidx.room.compiler)
 }
