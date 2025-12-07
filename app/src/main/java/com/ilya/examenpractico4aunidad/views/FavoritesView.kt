@@ -38,12 +38,12 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.ilya.examenpractico4aunidad.components.CenterAppBar
-import com.ilya.examenpractico4aunidad.models.Character
+import com.ilya.examenpractico4aunidad.models.Pokemon
 import com.ilya.examenpractico4aunidad.utils.Constants
-import com.ilya.examenpractico4aunidad.viewmodels.CharactersViewModel
+import com.ilya.examenpractico4aunidad.viewmodels.PokemonViewModel
 
 @Composable
-fun FavoritesView(viewModel: CharactersViewModel, navController: NavController) {
+fun FavoritesView(viewModel: PokemonViewModel, navController: NavController) {
     Scaffold(
         topBar = {
             CenterAppBar(
@@ -64,7 +64,7 @@ fun FavoritesView(viewModel: CharactersViewModel, navController: NavController) 
 
 @Composable
 fun ContentFavoritesView(
-    viewModel: CharactersViewModel,
+    viewModel: PokemonViewModel,
     paddingValues: PaddingValues,
     navController: NavController
 ) {
@@ -89,7 +89,7 @@ fun ContentFavoritesView(
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
                 )
                 Text(
-                    text = "Add characters to favorites from their details page",
+                    text = "Add Pokémon to favorites from their details page",
                     fontSize = 14.sp,
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f),
                     modifier = Modifier.padding(top = 8.dp)
@@ -97,14 +97,14 @@ fun ContentFavoritesView(
             }
         } else {
             LazyColumn {
-                items(favorites) { character ->
-                    CardFavoriteCharacterLocal(
-                        character = character,
+                items(favorites) { pokemon ->
+                    CardFavoritePokemonLocal(
+                        pokemon = pokemon,
                         onClick = {
-                            navController.navigate("${Constants.DETAILS_VIEW}/${character.id}")
+                            navController.navigate("${Constants.DETAILS_VIEW}/${pokemon.id}")
                         },
                         onDeleteClick = {
-                            viewModel.removeFavoriteById(character.id)
+                            viewModel.removeFavoriteById(pokemon.id)
                         }
                     )
                 }
@@ -114,8 +114,8 @@ fun ContentFavoritesView(
 }
 
 @Composable
-fun CardFavoriteCharacterLocal(
-    character: Character,
+fun CardFavoritePokemonLocal(
+    pokemon: Pokemon,
     onClick: () -> Unit,
     onDeleteClick: () -> Unit
 ) {
@@ -139,8 +139,8 @@ fun CardFavoriteCharacterLocal(
                 modifier = Modifier.weight(1f)
             ) {
                 AsyncImage(
-                    model = character.image,
-                    contentDescription = character.name,
+                    model = pokemon.image,
+                    contentDescription = pokemon.name,
                     modifier = Modifier
                         .size(60.dp)
                         .clip(RoundedCornerShape(8.dp)),
@@ -150,22 +150,20 @@ fun CardFavoriteCharacterLocal(
                     modifier = Modifier.padding(start = 12.dp)
                 ) {
                     Text(
-                        character.name,
+                        pokemon.name,
                         fontWeight = FontWeight.Bold,
                         fontSize = 16.sp,
                         color = MaterialTheme.colorScheme.onSurface,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
-                    if (!character.japaneseName.isNullOrEmpty()) {
-                        Text(
-                            character.japaneseName,
-                            fontSize = 14.sp,
-                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                    }
+                    Text(
+                        pokemon.types.joinToString(", "),
+                        fontSize = 14.sp,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
                 }
             }
             IconButton(onClick = onDeleteClick) {
