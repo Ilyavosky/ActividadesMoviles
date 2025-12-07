@@ -1,4 +1,4 @@
-package com.ilya.practica4
+package com.ilya.examenpractico4aunidad
 
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -19,6 +19,6 @@ class ExampleInstrumentedTest {
     fun useAppContext() {
         // Context of the app under test.
         val appContext = InstrumentationRegistry.getInstrumentation().targetContext
-        assertEquals("com.ilya.practica4", appContext.packageName)
+        assertEquals("com.ilya.examenpractico4aunidad", appContext.packageName)
     }
 }

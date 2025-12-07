@@ -1,4 +1,4 @@
-package com.ilya.practica4.ui.theme
+package com.ilya.examenpractico4aunidad.ui.theme
 
 import androidx.compose.ui.graphics.Color
 

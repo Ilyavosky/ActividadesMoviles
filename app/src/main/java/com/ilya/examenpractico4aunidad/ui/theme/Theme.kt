@@ -1,4 +1,4 @@
-package com.ilya.practica4.ui.theme
+package com.ilya.examenpractico4aunidad.ui.theme
 
 import android.app.Activity
 import android.os.Build
@@ -34,7 +34,7 @@ private val LightColorScheme = lightColorScheme(
 )
 
 @Composable
-fun Practica4Theme(
+fun ExamenPractico4aUnidadTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     // Dynamic color is available on Android 12+
     dynamicColor: Boolean = true,
