@@ -10,6 +10,9 @@ import androidx.paging.PagingConfig
 import androidx.paging.cachedIn
 import com.ilya.examenpractico4aunidad.data.PokemonDataSource
 import com.ilya.examenpractico4aunidad.models.Pokemon
+import com.ilya.examenpractico4aunidad.models.TeamAnalysis
+import com.ilya.examenpractico4aunidad.models.TypeChart
+import com.ilya.examenpractico4aunidad.models.TypeWeakness
 import com.ilya.examenpractico4aunidad.repositories.PokemonRepository
 import com.ilya.examenpractico4aunidad.state.PokemonState
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -42,6 +45,12 @@ class PokemonViewModel @Inject constructor(
 
     private val _favorites = MutableStateFlow<List<Pokemon>>(emptyList())
     val favorites: StateFlow<List<Pokemon>> = _favorites
+
+    private val _team = MutableStateFlow<List<Pokemon>>(emptyList())
+    val team: StateFlow<List<Pokemon>> = _team
+
+    private val _teamAnalysis = MutableStateFlow<TeamAnalysis?>(null)
+    val teamAnalysis: StateFlow<TeamAnalysis?> = _teamAnalysis
 
     val pokemonPage = Pager(PagingConfig(pageSize = 10)) {
         PokemonDataSource(repository)
@@ -137,5 +146,64 @@ class PokemonViewModel @Inject constructor(
                 repository.removeFavoriteById(pokemonId)
             }
         }
+    }
+
+    fun addPokemonToTeam(pokemon: Pokemon) {
+        if (_team.value.size < 6 && !_team.value.any { it.id == pokemon.id }) {
+            _team.value = _team.value + pokemon
+            analyzeTeam()
+        }
+    }
+
+    fun removePokemonFromTeam(pokemon: Pokemon) {
+        _team.value = _team.value.filter { it.id != pokemon.id }
+        analyzeTeam()
+    }
+
+    fun clearTeam() {
+        _team.value = emptyList()
+        _teamAnalysis.value = null
+    }
+
+    private fun analyzeTeam() {
+        if (_team.value.isEmpty()) {
+            _teamAnalysis.value = null
+            return
+        }
+
+        val typeCount = mutableMapOf<String, MutableList<String>>()
+
+        _team.value.forEach { pokemon ->
+            val effectiveness = TypeChart.calculateTypeEffectiveness(pokemon.types)
+            effectiveness.forEach { (type, multiplier) ->
+                val key = "$type:$multiplier"
+                if (!typeCount.containsKey(key)) {
+                    typeCount[key] = mutableListOf()
+                }
+                typeCount[key]?.add(pokemon.name)
+            }
+        }
+
+        val weaknesses = mutableListOf<TypeWeakness>()
+        val resistances = mutableListOf<TypeWeakness>()
+        val immunities = mutableListOf<TypeWeakness>()
+
+        typeCount.forEach { (key, pokemonNames) ->
+            val parts = key.split(":")
+            val type = parts[0]
+            val multiplier = parts[1].toFloat()
+
+            when {
+                multiplier == 0f -> immunities.add(TypeWeakness(type, multiplier, pokemonNames))
+                multiplier > 1f -> weaknesses.add(TypeWeakness(type, multiplier, pokemonNames))
+                multiplier < 1f -> resistances.add(TypeWeakness(type, multiplier, pokemonNames))
+            }
+        }
+
+        _teamAnalysis.value = TeamAnalysis(
+            weaknesses = weaknesses.sortedByDescending { it.multiplier },
+            resistances = resistances.sortedBy { it.multiplier },
+            immunities = immunities
+        )
     }
 }
